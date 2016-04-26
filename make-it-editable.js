@@ -1,4 +1,4 @@
-var makeEditable = (function () {
+var makeItEditable = (function () {
 
   function makeEditable(button, getValue, setValue, options) {
     button.assignId()

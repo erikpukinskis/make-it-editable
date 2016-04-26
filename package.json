@@ -1,9 +1,9 @@
 {
-  "name": "make-editable",
+  "name": "make-it-editable",
   "version": "0.0.0",
   "description": "tap an element and get an input that live updates it with a listener",
   "repository": {
     "type": "git",
-    "url": "https://github.com/erikpukinskis/make-editable.git"
+    "url": "https://github.com/erikpukinskis/make-it-editable.git"
   }
 }
