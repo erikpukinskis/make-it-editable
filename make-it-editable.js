@@ -1,7 +1,11 @@
 var makeItEditable = (function () {
 
+  var stylesheetIsAdded = false
+
   function makeEditable(button, getValue, setValue, options) {
     button.assignId()
+
+    makeSureStylesheetIsThere()
 
     if (options) {
       var updateElement = options.updateElement
@@ -14,13 +18,21 @@ var makeItEditable = (function () {
     button.classes.push("editable-"+button.id)
 
     button.onclick(
-      functionCall(startEditing)
+      functionCall("makeItEditable.startEditing")
       .withArgs(
         button.id,
         getValue,
         setValue
       )
     )
+  }
+
+  function makeSureStylesheetIsThere() {
+    if (!stylesheetIsAdded) {
+      var sheet = element.stylesheet(humanWords, beingEdited)
+      addHtml(sheet.html())
+      stylesheetIsAdded = true
+    }
   }
 
   function startEditing(id, getValue, callback) {
@@ -38,10 +50,12 @@ var makeItEditable = (function () {
     streamHumanInput(
       editable.oldValue,
       updateEditable.bind(null, callback),
-      functionCall(stopEditing).withArgs(editable.id)
+      functionCall("makeItEditable.stopEditing").withArgs(editable.id)
     )
 
   }
+
+  makeEditable.startEditing = startEditing
 
   var editable
 
@@ -61,6 +75,8 @@ var makeItEditable = (function () {
     var el = document.querySelector(".editable-"+id)
     el.classList.remove("being-edited-by-human")
   }
+
+  makeEditable.stopEditing = stopEditing
 
   var humanInputListener = {}
 
@@ -83,7 +99,7 @@ var makeItEditable = (function () {
 
       var catcher = humanInputListener.catcher = tapCatcher(input, done)
 
-      addToDom(catcher.html())
+      addHtml(catcher.html())
     }
 
     var input = document.getElementById(humanInputListener.inputId)
@@ -100,10 +116,42 @@ var makeItEditable = (function () {
 
   var humanWords = element.template(
     "input.human-words-and-stuff",
+    element.style({
+      "z-index": "2",
+      "width": "80%",
+      "display": "block",
+      "margin": "0 auto",
+      "margin-top": "20%",
+      "text-align": "center",
+      "font-size": "40px",
+      "border": "none",
+      "border-top": "20px solid red",
+      "background": "white",
+      "padding": "0px 0 20px 0"
+    }),
     {
       onKeyUp: "onFreshHumanData(this.value)"
     }
   )
+
+
+  var beingEdited = element.template(
+    ".being-edited-by-human",
+    element.style({
+      "padding-top": "2px !important",
+      "border-color": "0px !important",
+      "border-top": "6px solid red !important",
+      "color": "black !important",
+      "background": "white !important",
+      "opacity": "0.7 !important"
+    })
+  )
+
+
+
+
+
+
 
 
   // CATCH DEM TAPS
@@ -127,7 +175,7 @@ var makeItEditable = (function () {
     )
 
     function tapOutScript(callback) {
-      return functionCall(onTapOut).withArgs(functionCall.raw("event"), callback).evalable()
+      return functionCall("makeItEditable.onTapOut").withArgs(functionCall.raw("event"), callback).evalable()
     }
 
     catcher.assignId()
@@ -156,4 +204,8 @@ var makeItEditable = (function () {
 
     callback && callback()
   }
+
+  makeEditable.onTapOut = onTapOut
+
+  return makeEditable
 })()
