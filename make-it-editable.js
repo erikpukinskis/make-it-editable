@@ -13,6 +13,7 @@ var makeItEditable = (function () {
       var updateElement = button
     }
 
+    updateElement.classes.push("editable")
     updateElement.classes.push("editable-"+button.id+"-target")
 
     button.classes.push("editable-"+button.id)
@@ -27,9 +28,16 @@ var makeItEditable = (function () {
     )
   }
 
+  var onBottom = false
+
+  makeEditable.onBottomOfScreen =
+    function() {
+      onBottom = true
+    }
+
   function makeSureStylesheetIsThere() {
     if (!stylesheetIsAdded) {
-      var sheet = element.stylesheet(humanWords, beingEdited)
+      var sheet = element.stylesheet(humanWords, beingEdited, editableTemplate)
       addHtml(sheet.html())
       stylesheetIsAdded = true
     }
@@ -66,7 +74,7 @@ var makeItEditable = (function () {
         +editable.id
         +"-target")
 
-    toUpdate.innerHTML = value
+    toUpdate.innerHTML = value.replace(/\</g, "&lt;").replace(/\>/g, "&gt;")
     callback(value, editable.oldValue)
     editable.oldValue = value
   }
@@ -97,7 +105,7 @@ var makeItEditable = (function () {
 
       humanInputListener.inputId = input.assignId()
 
-      var catcher = humanInputListener.catcher = tapCatcher(input, done)
+      var catcher = humanInputListener.catcher = tapOut.catcher(input, done)
 
       addHtml(catcher.html())
     }
@@ -114,6 +122,16 @@ var makeItEditable = (function () {
     humanInputListener.callback(newText)
   }
 
+  makeEditable.onFreshHumanData = onFreshHumanData
+
+  var editableTemplate =
+    element.template(
+      ".editable",
+      element.style({
+        cursor: "text"
+      })
+    )
+   
   var humanWords = element.template(
     "input.human-words-and-stuff",
     element.style({
@@ -121,7 +139,7 @@ var makeItEditable = (function () {
       "width": "80%",
       "display": "block",
       "margin": "0 auto",
-      "margin-top": "20%",
+      "margin-top": onBottom ? "200px" : "400px",
       "text-align": "center",
       "font-size": "40px",
       "border": "none",
@@ -130,7 +148,7 @@ var makeItEditable = (function () {
       "padding": "0px 0 20px 0"
     }),
     {
-      onKeyUp: "onFreshHumanData(this.value)"
+      onKeyUp: "makeItEditable.onFreshHumanData(this.value)"
     }
   )
 
@@ -148,64 +166,6 @@ var makeItEditable = (function () {
   )
 
 
-
-
-
-
-
-
-  // CATCH DEM TAPS
-
-  function tapCatcher(child, callback) {
-
-    var catcher = element(
-      ".tap-catcher",
-      {
-        onclick: tapOutScript(callback)
-      },
-      element.style({
-        "position": "fixed",
-        "top": "0",
-        "left": "0",
-        "width": "100%",
-        "height": "100%",
-        "z-index": "1000"
-      }),
-      child
-    )
-
-    function tapOutScript(callback) {
-      return functionCall("makeItEditable.onTapOut").withArgs(functionCall.raw("event"), callback).evalable()
-    }
-
-    catcher.assignId()
-
-    catcher.onTapOut =
-      function(callback) {
-        document.getElementById(this.id).setAttribute("onclick", tapOutScript(callback))
-      }
-
-    catcher.show =
-      function() {
-        document.getElementById(this.id).style.display = "block"
-      }
-
-    return catcher
-  }
-
-  function onTapOut(event, callback) {
-    var catcherElement = event.target
-    
-    if (!catcherElement.classList.contains("tap-catcher")) {
-      return
-    }
-
-    catcherElement.style.display = "none"
-
-    callback && callback()
-  }
-
-  makeEditable.onTapOut = onTapOut
 
   return makeEditable
 })()
