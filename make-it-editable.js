@@ -1,11 +1,25 @@
-var makeItEditable = (function () {
+if (require) {
+  var library = require("nrtv-library")(require)
+
+  module.exports = library.export(
+    "make-it-editable",
+    ["nrtv-element", "add-html", "function-call"],
+    generator
+  )
+} else {
+  var makeItEditable = generator(element, addHtml)
+}
+
+function generator(element, addHtml, functionCall) {
 
   var stylesheetIsAdded = false
 
   function makeEditable(button, getValue, setValue, options) {
     button.assignId()
 
-    makeSureStylesheetIsThere()
+    if (typeof window != "undefined") {
+      makeSureStylesheetIsThere()
+    }
 
     if (options) {
       var updateElement = options.updateElement
@@ -165,7 +179,5 @@ var makeItEditable = (function () {
     })
   )
 
-
-
   return makeEditable
-})()
+}
