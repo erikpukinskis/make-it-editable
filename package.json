@@ -5,9 +5,10 @@
   "main": "make-it-editable.js",
   "dependencies": {
     "nrtv-library": "*",
-    "nrtv-element": "*",
+    "web-element": "*",
     "add-html": "*",
-    "function-call": "*"
+    "function-call": "*",
+    "tap-away": "*"
   },
   "devDependencies": {
     "nrtv-test": "*"

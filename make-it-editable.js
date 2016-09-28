@@ -3,14 +3,14 @@ if (require) {
 
   module.exports = library.export(
     "make-it-editable",
-    ["nrtv-element", "add-html", "function-call"],
+    ["nrtv-element", "add-html", "function-call", "tap-away"],
     generator
   )
 } else {
   var makeItEditable = generator(element, addHtml)
 }
 
-function generator(element, addHtml, functionCall) {
+function generator(element, addHtml, functionCall, tapAway) {
 
   var stylesheetIsAdded = false
 
@@ -21,7 +21,7 @@ function generator(element, addHtml, functionCall) {
       makeSureStylesheetIsThere()
     }
 
-    if (options) {
+    if (options && options.updateElement) {
       var updateElement = options.updateElement
     } else {
       var updateElement = button
@@ -32,8 +32,10 @@ function generator(element, addHtml, functionCall) {
 
     button.classes.push("editable-"+button.id)
 
+    var singletonSource = options.singleton ? options.singleton.evalable() : "makeItEditable"
+    
     button.onclick(
-      functionCall("makeItEditable.startEditing")
+      functionCall(singletonSource+".startEditing")
       .withArgs(
         button.id,
         getValue,
@@ -119,7 +121,7 @@ function generator(element, addHtml, functionCall) {
 
       humanInputListener.inputId = input.assignId()
 
-      var catcher = humanInputListener.catcher = tapOut.catcher(input, done)
+      var catcher = humanInputListener.catcher = tapAway.catcher(input, done)
 
       addHtml(catcher.html())
     }
