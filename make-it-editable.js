@@ -3,7 +3,7 @@ if (require) {
 
   module.exports = library.export(
     "make-it-editable",
-    ["nrtv-element", "add-html", "function-call", "tap-away"],
+    ["web-element", "add-html", "function-call", "tap-away"],
     generator
   )
 } else {
@@ -15,6 +15,7 @@ function generator(element, addHtml, functionCall, tapAway) {
   var stylesheetIsAdded = false
 
   function makeEditable(button, getValue, setValue, options) {
+
     button.assignId()
 
     if (typeof window != "undefined") {
@@ -31,8 +32,6 @@ function generator(element, addHtml, functionCall, tapAway) {
     updateElement.classes.push("editable-"+button.id+"-target")
 
     button.classes.push("editable-"+button.id)
-
-    var singletonSource = options.singleton ? options.singleton.evalable() : "makeItEditable"
     
     button.onclick(
       functionCall(singletonSource+".startEditing")
@@ -74,7 +73,7 @@ function generator(element, addHtml, functionCall, tapAway) {
     streamHumanInput(
       editable.oldValue,
       updateEditable.bind(null, callback),
-      functionCall("makeItEditable.stopEditing").withArgs(editable.id)
+      functionCall(singletonSource+".stopEditing").withArgs(editable.id)
     )
 
   }
@@ -120,7 +119,6 @@ function generator(element, addHtml, functionCall, tapAway) {
       var input = humanWords()
 
       humanInputListener.inputId = input.assignId()
-
       var catcher = humanInputListener.catcher = tapAway.catcher(input, done)
 
       addHtml(catcher.html())
@@ -139,6 +137,20 @@ function generator(element, addHtml, functionCall, tapAway) {
   }
 
   makeEditable.onFreshHumanData = onFreshHumanData
+
+  var singletonSource = typeof makeItEditable == "undefined" ? "library.get(\"make-it-editable\")" : "makeItEditable"
+
+  makeEditable.prepareBridge =
+    function(bridge, options) {
+
+      if (options && options.useLibrary) {
+        singletonSource = "library.get(\"make-it-editable\")"
+      }
+
+      bridge.addToHead(
+        element.stylesheet(humanWords, beingEdited, editableTemplate).html()
+      )
+    }
 
   var editableTemplate =
     element.template(
@@ -164,7 +176,7 @@ function generator(element, addHtml, functionCall, tapAway) {
       "padding": "0px 0 20px 0"
     }),
     {
-      onKeyUp: "makeItEditable.onFreshHumanData(this.value)"
+      onKeyUp: singletonSource+".onFreshHumanData(this.value)"
     }
   )
 
