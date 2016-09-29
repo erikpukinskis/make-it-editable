@@ -1,6 +1,6 @@
 {
   "name": "make-it-editable",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "tap an element and get an input that live updates it with a listener",
   "main": "make-it-editable.js",
   "dependencies": {
