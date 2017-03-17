@@ -4,14 +4,14 @@
   "description": "tap an element and get an input that live updates it with a listener",
   "main": "make-it-editable.js",
   "dependencies": {
-    "nrtv-library": "*",
+    "module-library": "*",
     "web-element": "*",
     "add-html": "*",
     "function-call": "*",
     "tap-away": "*"
   },
   "devDependencies": {
-    "nrtv-test": "*"
+    "run-test": "*"
   },
   "scripts": {
     "test": "node test.js"
