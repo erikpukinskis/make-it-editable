@@ -152,39 +152,36 @@ module.exports = library.export(
           cursor: "text"
         })
       )
-     
+
     var humanWords = element.template(
-      "input.human-words-and-stuff",
+      "textarea.human-words-and-stuff",
       element.style({
         "z-index": "2",
         "width": "80%",
         "display": "block",
+        "background-color": "white !important",
         "margin": "0 auto",
         "margin-top": onBottom ? "200px" : "400px",
-        "text-align": "center",
         "font-size": "40px",
         "border": "none",
-        "border-top": "20px solid red",
-        "background": "white",
+        "border-top": "0.2em solid red",
         "padding": "0px 0 20px 0"
       }),
+      {"rows": "3"},
       {
         onKeyUp: singletonSource+".onFreshHumanData(this.value)"
       }
     )
 
-
-    var beingEdited = element.template(
-      ".being-edited-by-human",
-      element.style({
-        "padding-top": "2px !important",
-        "border-color": "0px !important",
-        "border-top": "6px solid red !important",
-        "color": "black !important",
-        "background": "white !important",
-        "opacity": "0.7 !important"
-      })
-    )
+    var beingEdited = element.style(
+      ".being-edited-by-human", {
+      "border-color": "0px !important",
+      "color": "black !important",
+      "background-color": "white !important",
+      "opacity": "0.5 !important",
+      "border-top": "0.2em solid red",
+      "box-sizing": "border-box",
+    })
 
     return makeEditable
   }
