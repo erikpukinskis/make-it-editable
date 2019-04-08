@@ -7,7 +7,9 @@ module.exports = library.export(
 
     var stylesheetIsAdded = false
 
-    function makeEditable(button, getValue, setValue, options) {
+    var makeItInBrowser
+
+    function makeItEditable(button, makeItInBrowser, getValue, setValue, options) {
 
       button.assignId()
 
@@ -26,19 +28,20 @@ module.exports = library.export(
 
       button.classes.push("editable-"+button.id)
       
-      button.onclick(
-        functionCall(singletonSource+".startEditing")
+      var startEditing = makeItInBrowser.methodCall(
+          "startEditing")
         .withArgs(
           button.id,
           getValue,
-          setValue
-        )
-      )
+          setValue)
+
+      button.onclick(
+        startEditing.evalable())
     }
 
     var onBottom = false
 
-    makeEditable.onBottomOfScreen =
+    makeItEditable.onBottomOfScreen =
       function() {
         onBottom = true
       }
@@ -66,12 +69,11 @@ module.exports = library.export(
       streamHumanInput(
         editable.oldValue,
         updateEditable.bind(null, callback),
-        functionCall(singletonSource+".stopEditing").withArgs(editable.id)
-      )
+        makeItEditable.stopEditing.bind(editable.id))
 
     }
 
-    makeEditable.startEditing = startEditing
+    makeItEditable.startEditing = startEditing
 
     var editable
 
@@ -92,7 +94,7 @@ module.exports = library.export(
       el.classList.remove("being-edited-by-human")
     }
 
-    makeEditable.stopEditing = stopEditing
+    makeItEditable.stopEditing = stopEditing
 
     var humanInputListener = {}
 
@@ -109,7 +111,7 @@ module.exports = library.export(
         catcher.onTapOut(done)
         catcher.show()
       } else {
-        var input = humanWords()
+        var input = humanWords(makeItInBrowser)
 
         humanInputListener.inputId = input.assignId()
         var catcher = humanInputListener.catcher = tapAway.catcher(input, done)
@@ -129,20 +131,22 @@ module.exports = library.export(
       humanInputListener.callback(newText)
     }
 
-    makeEditable.onFreshHumanData = onFreshHumanData
+    makeItEditable.onFreshHumanData = onFreshHumanData
 
-    var singletonSource = typeof makeItEditable == "undefined" ? "library.get(\"make-it-editable\")" : "makeItEditable"
+    makeItEditable.seeCall = function seeCall(makeIt) {
+      makeItInBrowser = makeIt }
 
-    makeEditable.prepareBridge =
-      function(bridge, options) {
+    makeItEditable.prepareBridge =
+      function prepareBridge(bridge, makeItInBrowser) {
 
-        if (options && options.useLibrary) {
-          singletonSource = "library.get(\"make-it-editable\")"
-        }
+        bridge.asap([
+          makeItInBrowser,
+          makeItInBrowser.asCall()],
+          function(makeItEditable, makeItInBrowser) {
+            makeItEditable.seeCall(makeItInBrowser)})
 
         bridge.addToHead(
-          element.stylesheet(humanWords, beingEdited, editableTemplate).html()
-        )
+          element.stylesheet(humanWords, beingEdited, editableTemplate).html())
       }
 
     var editableTemplate =
@@ -168,10 +172,12 @@ module.exports = library.export(
         "padding": "0px 0 20px 0"
       }),
       {"rows": "3"},
-      {
-        onKeyUp: singletonSource+".onFreshHumanData(this.value)"
-      }
-    )
+      function(makeItInBrowser) {
+        var onData = makeItEditable.onFreshHumanData
+        var makeIt = makeItInBrowser.methodCall("onFreshHumanData")
+        this.addAttribute(
+          "onkeyup",
+          makeIt.withArgs(makeIt.event).evalable())})
 
     var beingEdited = element.style(
       ".being-edited-by-human", {
@@ -183,6 +189,6 @@ module.exports = library.export(
       "box-sizing": "border-box",
     })
 
-    return makeEditable
+    return makeItEditable
   }
 )
