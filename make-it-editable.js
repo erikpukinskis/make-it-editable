@@ -69,7 +69,7 @@ module.exports = library.export(
       streamHumanInput(
         editable.oldValue,
         updateEditable.bind(null, callback),
-        makeItEditable.stopEditing.bind(editable.id))
+        makeItInBrowser.methodCall("stopEditing").withArgs(editable.id))
 
     }
 
@@ -114,6 +114,7 @@ module.exports = library.export(
         var input = humanWords(makeItInBrowser)
 
         humanInputListener.inputId = input.assignId()
+
         var catcher = humanInputListener.catcher = tapAway.catcher(input, done)
 
         addHtml(catcher.html())
