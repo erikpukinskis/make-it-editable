@@ -177,7 +177,7 @@ module.exports = library.export(
         var makeIt = makeItInBrowser.methodCall("onFreshHumanData")
         this.addAttribute(
           "onkeyup",
-          makeIt.withArgs(makeIt.event).evalable())})
+          makeIt.withArgs(functionCall.raw("event.target.value")).evalable())})
 
     var beingEdited = element.style(
       ".being-edited-by-human", {
